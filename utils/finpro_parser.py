@@ -1,4 +1,3 @@
-import streamlit as st
 import pandas as pd
 
 
@@ -8,18 +7,13 @@ class FinproParser:
         self.uploaded_file = uploaded_file
 
     def read_excel(self):
+        return pd.read_excel(self.uploaded_file, header=None)
 
-        df = pd.read_excel(
-            self.uploaded_file,
-            header=None
-        )
-
-        return df
-
-    def inspect(self):
-
+    def get_sheet_size(self):
         df = self.read_excel()
+        return df.shape
 
-        st.subheader("First 25 Rows of the Raw Excel")
-
-        st.dataframe(df.head(25), use_container_width=True)
+    def preview(self, rows=20):
+        df = self.read_excel()
+        return df.head(rows)
+    

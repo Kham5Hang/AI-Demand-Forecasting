@@ -1,57 +1,23 @@
-from utils.finpro_parser import FinproParser
-import streamlit as st
-import pandas as pd
-
-# ------------------------
-# Page Configuration
-# ------------------------
-st.set_page_config(
-    page_title="AI-Based Sales & Demand Forecasting",
-    page_icon="📈",
-    layout="wide"
-)
-
-# ------------------------
-# Title
-# ------------------------
-st.title("📈 AI-Based Sales & Demand Forecasting")
-
-st.write("Upload your FINPRO Sales Bill Register to begin.")
-
-# ------------------------
-# File Upload
-# ------------------------
-uploaded_file = st.file_uploader(
-    "Choose an Excel File",
-    type=["xlsx", "xls"]
-)
-
-# ------------------------
-# Read Excel
-# ------------------------
 if uploaded_file is not None:
 
-    try:
-        # Read exactly as it appears in Excel
-        parser = FinproParser(uploaded_file)
-        df = parser.read_excel()
-        parser.inspect()
+    parser = FinproParser(uploaded_file)
 
-        st.success("✅ File uploaded successfully!")
+    df = parser.read_excel()
 
-        st.subheader("Preview of Raw FINPRO Report")
+    rows, cols = parser.get_sheet_size()
 
-        st.write(df.head(20))
+    st.success("File uploaded successfully!")
 
-        st.write(f"Rows: {df.shape[0]}")
-        st.write(f"Columns: {df.shape[1]}")
+    col1, col2 = st.columns(2)
 
-    except Exception as e:
+    col1.metric("Rows", rows)
 
-        st.error("Error reading the Excel file.")
+    col2.metric("Columns", cols)
 
-        st.exception(e)
+    st.subheader("Raw Data Preview")
+
+    st.dataframe(parser.preview(), use_container_width=True)
 
 else:
 
-    st.info("Please upload a FINPRO Excel report.")
+    st.info("Upload a FINPRO Sales Bill Register.")
