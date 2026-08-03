@@ -1,7 +1,11 @@
 from utils.finpro_parser import FinproParser
 import streamlit as st
-from models.forecast import SalesForecaster
+import models.forecast
+
+
 import matplotlib.pyplot as plt
+import pandas as pd
+
 
 st.set_page_config(
     page_title="AI-Based Sales & Demand Forecasting",
@@ -32,29 +36,64 @@ if uploaded_file is not None:
     st.subheader("Extracted Transactions")
 
     st.metric("Transactions", len(clean_df))
+    st.subheader("📊 Dashboard")
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    col1.metric("Transactions", len(clean_df))
+    col2.metric("Products", clean_df["Product"].nunique())
+    col3.metric("Customers", clean_df["Customer"].nunique())
+    col4.metric("Sales (Rs.)", f"{clean_df['Net Amount'].sum():,.2f}")
+
+    st.subheader("🏆 Top 10 Products")
+
+    top_products = (
+        clean_df.groupby("Product")["Quantity"]
+        .sum()
+        .sort_values(ascending=False)
+    )
+    st.bar_chart(top_products.head(10))
+    st.subheader("📅 Monthly Sales")
+
+    monthly_sales = clean_df.copy()
+
+    monthly_sales["Date"] = pd.to_datetime(monthly_sales["Date"])
+
+    monthly_sales["Month"] = monthly_sales["Date"].dt.to_period("M").astype(str)
+
+    monthly_sales = (
+        monthly_sales.groupby("Month")["Net Amount"]
+        .sum()
+    )
+
+    st.line_chart(monthly_sales)
+
     st.dataframe(clean_df, use_container_width=True)
     products = sorted(clean_df["Product"].dropna().unique())
 
     st.metric("Products", len(products))
     st.subheader("Products Found")
     st.write(products)
-    selected_product = st.selectbox(
+    with st.sidebar:
+
+        st.header("Forecast Settings")
+
+        selected_product = st.selectbox(
         "Select Product",
         products
-    )
-    metric = st.radio(
-        "Forecast Based On",
-        ["Quantity", "Net Amount"],
-        horizontal=True
-    )
+        )
 
-    days = st.slider(
-        "Forecast Days",
-        7,
-        90,
-        30
-    )
+        metric = st.radio(
+            "Forecast Based On",
+            ["Quantity", "Net Amount"]
+        )
 
+        days = st.slider(
+            "Forecast Days",
+            7,
+            90,
+            30
+        )
 
     product_data = clean_df[clean_df["Product"] == selected_product]
 
@@ -66,9 +105,8 @@ if uploaded_file is not None:
     elif st.button("Generate Forecast"):
 
         try:
-
+            SalesForecaster = models.forecast.SalesForecaster
             forecaster = SalesForecaster(clean_df)
-
             forecast = forecaster.forecast(
                 selected_product,
                 metric,

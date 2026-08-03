@@ -1,3 +1,5 @@
+print("Forecast.py version 2 loaded")
+print("Loaded:", __file__)
 from prophet import Prophet
 import pandas as pd
 
