@@ -37,23 +37,43 @@ if uploaded_file is not None:
 
     st.metric("Transactions", len(clean_df))
     st.subheader("📊 Dashboard")
+    dashboard_df = clean_df.copy()
 
     col1, col2, col3, col4, col5 = st.columns(5)
 
-    col1.metric("Transactions", len(clean_df))
-    col2.metric("Products", clean_df["Product"].nunique())
-    col3.metric("Customers", clean_df["Customer"].nunique())
-    col4.metric("Sales (Rs.)", f"{clean_df['Net Amount'].sum():,.2f}")
-    col5.metric("Average Sales/Transaction", f"{clean_df['Net Amount'].mean():,.2f}")
+    col1.metric("Transactions", len(dashboard_df))
+    col2.metric("Products", dashboard_df["Product"].nunique())
+    col3.metric("Customers", dashboard_df["Customer"].nunique())
+    col4.metric("Sales (Rs.)", f"{dashboard_df['Net Amount'].sum():,.2f}")
+    col5.metric("Average Sales/Transaction", f"{dashboard_df['Net Amount'].mean():,.2f}")
 
+    dashboard_product = st.selectbox(
+        "Dashboard Product",
+        ["All"] + sorted(dashboard_df["Product"].unique())
+        )
+
+    dashboard_customer = st.selectbox(
+        "Dashboard Customer",
+        ["All"] + sorted(dashboard_df["Customer"].dropna().unique())
+    )
+
+    if dashboard_product != "All":
+        dashboard_df = dashboard_df[
+            dashboard_df["Product"] == dashboard_product
+        ]
+
+    if dashboard_customer != "All":
+        dashboard_df = dashboard_df[
+            dashboard_df["Customer"] == dashboard_customer
+        ]
 
     top_products = (
-        clean_df.groupby("Product")["Quantity"]
+        dashboard_df.groupby("Product")["Quantity"]
         .sum()
         .sort_values(ascending=False)
     )
 
-    monthly_sales = clean_df.copy()
+    monthly_sales = dashboard_df.copy()
 
     monthly_sales["Date"] = pd.to_datetime(monthly_sales["Date"])
 
