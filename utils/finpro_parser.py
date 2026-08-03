@@ -56,3 +56,7 @@ class FinproParser:
         ]
 
         return clean_df
+
+
+    def save_csv(self, df, filename="processed_data/clean_sales.csv"):
+        df.to_csv(filename, index=False)

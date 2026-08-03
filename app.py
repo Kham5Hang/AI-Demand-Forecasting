@@ -21,6 +21,10 @@ if uploaded_file is not None:
 
     clean_df = parser.extract_transactions()
 
+    parser.save_csv(clean_df)
+
+    st.success("Clean data saved to processed_data/clean_sales.csv")
+
     st.success("✅ File uploaded successfully!")
 
     st.subheader("Extracted Transactions")
