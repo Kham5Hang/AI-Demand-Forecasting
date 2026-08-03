@@ -5,7 +5,7 @@ import models.forecast
 
 import matplotlib.pyplot as plt
 import pandas as pd
-
+from utils.production import recommend_production
 
 st.set_page_config(
     page_title="AI-Based Sales & Demand Forecasting",
@@ -175,10 +175,43 @@ if uploaded_file is not None:
                 forecast[["ds", "yhat"]].tail(days),
                 use_container_width=True
             )
-
         except Exception as e:
 
             st.error(e)
 
 else:
     st.info("Upload a FINPRO Sales Bill Register.")
+
+safety_stock = st.slider(
+    "Safety Stock (%)",
+    0,
+    30,
+    10
+)
+
+predicted_demand = forecast["yhat"].tail(days).sum()
+
+
+recommended_production = recommend_production(
+    predicted_demand,
+    safety_stock
+)
+
+st.subheader("📦 Production Recommendation")
+
+col1, col2, col3 = st.columns(3)
+
+col1.metric(
+    "Forecast Demand",
+    f"{predicted_demand:,.0f}"
+    )
+
+col2.metric(
+    "Recommended Production",
+    f"{recommended_production:,.0f}"
+)
+col3.metric(
+    "Safety Stock",
+    f"{safety_stock}%"
+)
+

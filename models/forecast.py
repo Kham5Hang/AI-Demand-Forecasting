@@ -36,3 +36,5 @@ class SalesForecaster:
         future = model.make_future_dataframe(periods=periods)
 
         return model.predict(future)
+
+    
