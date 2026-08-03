@@ -27,6 +27,11 @@ if uploaded_file is not None:
 
     st.metric("Transactions", len(clean_df))
     st.dataframe(clean_df, use_container_width=True)
+    products = sorted(clean_df["Product"].dropna().unique())
+
+    st.metric("Products", len(products))
+    st.subheader("Products Found")
+    st.write(products)
 
 else:
     st.info("Upload a FINPRO Sales Bill Register.")
