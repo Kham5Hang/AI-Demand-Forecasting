@@ -42,6 +42,11 @@ if uploaded_file is not None:
         "Select Product",
         products
     )
+    metric = st.radio(
+        "Forecast Based On",
+        ["Quantity", "Net Amount"],
+        horizontal=True
+    )
 
     days = st.slider(
         "Forecast Days",
@@ -64,11 +69,18 @@ if uploaded_file is not None:
 
             forecaster = SalesForecaster(clean_df)
 
-            forecast = forecaster.forecast(selected_product, days)
+            forecast = forecaster.forecast(
+                selected_product,
+                metric,
+                days
+            )
 
             fig, ax = plt.subplots(figsize=(10, 5))
 
-            history_df = forecaster.prepare_data(selected_product)
+            history_df = forecaster.prepare_data(
+                selected_product,
+                metric
+            )
 
             ax.plot(
             history_df["ds"],
