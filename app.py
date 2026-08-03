@@ -32,28 +32,26 @@ if uploaded_file is not None:
     st.success("Clean data saved to processed_data/clean_sales.csv")
 
     st.success("✅ File uploaded successfully!")
-
+    
     st.subheader("Extracted Transactions")
 
     st.metric("Transactions", len(clean_df))
     st.subheader("📊 Dashboard")
 
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
 
     col1.metric("Transactions", len(clean_df))
     col2.metric("Products", clean_df["Product"].nunique())
     col3.metric("Customers", clean_df["Customer"].nunique())
     col4.metric("Sales (Rs.)", f"{clean_df['Net Amount'].sum():,.2f}")
+    col5.metric("Average Sales/Transaction", f"{clean_df['Net Amount'].mean():,.2f}")
 
-    st.subheader("🏆 Top 10 Products")
 
     top_products = (
         clean_df.groupby("Product")["Quantity"]
         .sum()
         .sort_values(ascending=False)
     )
-    st.bar_chart(top_products.head(10))
-    st.subheader("📅 Monthly Sales")
 
     monthly_sales = clean_df.copy()
 
@@ -66,7 +64,15 @@ if uploaded_file is not None:
         .sum()
     )
 
-    st.line_chart(monthly_sales)
+    left, right = st.columns(2)
+
+    with left:
+        st.subheader("🏆 Top 10 Products")
+        st.bar_chart(top_products.head(10))
+
+    with right:
+        st.subheader("📅 Monthly Sales")
+        st.line_chart(monthly_sales)
 
     st.dataframe(clean_df, use_container_width=True)
     products = sorted(clean_df["Product"].dropna().unique())
